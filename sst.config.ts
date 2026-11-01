@@ -1,7 +1,7 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
 // AWS hosting: Next.js on Lambda behind CloudFront (Mumbai), built with OpenNext.
-// Secrets live in AWS SSM via `npx sst secret set <Name> <value> --stage <stage>` (see deploy/AWS.md).
+// Secrets live in AWS SSM via `npx sst secret set <Name> <value> --stage <stage>` (see DEPLOYMENT.md).
 //   npx sst deploy --stage production
 export default $config({
   app(input) {

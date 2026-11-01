@@ -46,7 +46,7 @@ jobs:
 
       - name: Skip until the AWS secrets are set
         if: env.AWS_ACCESS_KEY_ID == ''
-        run: echo "::notice::AWS_ACCESS_KEY_ID is not set yet — skipping deploy. See deploy/AWS.md."
+        run: echo "::notice::AWS_ACCESS_KEY_ID is not set yet — skipping deploy. See DEPLOYMENT.md."
 
       - uses: actions/setup-node@v4
         if: env.AWS_ACCESS_KEY_ID != ''
