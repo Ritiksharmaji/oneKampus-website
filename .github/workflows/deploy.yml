@@ -1,0 +1,55 @@
+# Checks every push and pull request; deploys to the VPS when main changes.
+# Deploying needs the repo secrets VPS_HOST, VPS_USER and VPS_SSH_KEY (printed by deploy/server-setup.sh).
+name: Deploy
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Type-check and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: npx eslint src
+
+  deploy:
+    name: Deploy to VPS
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip until the server secrets are set
+        if: env.VPS_HOST == ''
+        run: echo "::notice::VPS_HOST is not set yet — skipping deploy. See deploy/README.md."
+
+      - name: Deploy
+        if: env.VPS_HOST != ''
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # Run the deploy script from this commit, so script changes ship with it.
+          ssh "$VPS_USER@$VPS_HOST" 'bash -s -- main' < deploy/deploy.sh
