@@ -62,19 +62,14 @@ public pages (prerendered and cached for an hour) refresh immediately.
 
 ## Production (VPS)
 
-```bash
-npm ci
-npm run db:migrate
-npm run build
-pm2 start ecosystem.config.cjs     # serves on port 3300; put Nginx in front for the domain + HTTPS
-```
-
-Set in `.env` on the server: `DATABASE_URL`, a fresh `AUTH_SECRET`, `SITE_URL=https://your-domain`,
-`LEADS_NOTIFY_EMAIL`, the `SMTP_*` values, and `UPLOAD_DIR` (an absolute folder outside the app, e.g.
-`/var/lib/onekampus/uploads`, and include it in backups). Run `npm run db:seed` once to create the first admin,
-then change the sample prices, contact details and testimonials in the admin panel.
+Everything for the server is in [`deploy/`](deploy/README.md): a one-time `server-setup.sh` (Node, PostgreSQL,
+Nginx, HTTPS, firewall, backups), a `deploy.sh` that builds each release next to the live one and switches over
+only when it answers a health check, and a GitHub Actions workflow that deploys whenever `main` changes.
+Step-by-step guide (Hostinger VPS, GoDaddy DNS, GitHub secrets): [deploy/README.md](deploy/README.md).
 
 ## Branches
 
-Each phase was built on its own branch and merged into `main`:
-`01-setup-database` → `02-public-site` → `03-leads-and-forms` → `04-admin-panel` → `05-seo-and-launch`.
+`main` is what runs on the server. Work happens on numbered branches made from `development`, which are merged
+into `development`, and then `development` is merged into `main` to release (that deploys automatically).
+Done so far: `01-setup-database`, `02-public-site`, `03-leads-and-forms`, `04-admin-panel`, `05-seo-and-launch`,
+`06-photos-and-motion`, `07-deployment`.
