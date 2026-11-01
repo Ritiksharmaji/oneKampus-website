@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# oneKampus website
 
-## Getting Started
+The public website for **oneKampus**. It shows every service — the software (Manage, Learn, Assess, Hire, the
+mobile app, Sites), the **Kampus Store** (notebooks, uniforms, stationery, ID cards, bags, diaries) and services —
+and turns visitors into leads through quote requests, demo bookings and contact forms. An admin panel lets the
+team edit all content and work the leads without a developer.
 
-First, run the development server:
+One Next.js application: the pages (frontend) and the API/server actions (backend) live together.
+
+| | |
+|---|---|
+| Framework | Next.js 16 (App Router, Cache Components), React 19, TypeScript |
+| Styling | Tailwind CSS 4 — same brand palette and fonts as the oneKampus platform |
+| Database | PostgreSQL + Prisma 6 |
+| Auth (admin) | Signed JWT cookie (jose) + bcrypt, roles Admin / Editor / Sales |
+| Email | Nodemailer over SMTP (Zoho, Gmail, Resend…) — printed to the log when SMTP isn't set |
+| Validation | Zod |
+
+## Run it locally
+
+Needs Node 20+ and PostgreSQL.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env          # then fill in DATABASE_URL, AUTH_SECRET, SEED_ADMIN_*
+createdb onekampus_website
+npm install                   # also generates the Prisma client
+npm run db:migrate            # create the tables
+npm run db:seed               # sample catalogue + first admin user
+npm run dev                   # http://localhost:3300
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Admin panel: <http://localhost:3300/admin> — sign in with `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` from `.env`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## What's where
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Path | What it is |
+|---|---|
+| `src/app/(site)/` | Public pages: home, `/solutions`, `/store`, `/services`, `/about`, `/contact`, `/book-demo`, `/partners`, `/quote`, `/privacy` |
+| `src/app/admin/` | Admin panel: login, dashboard, leads, software, products, categories, services, testimonials, settings, users |
+| `src/app/admin/actions/` | Server actions for the admin (all check the user's role) |
+| `src/app/api/leads/route.ts` | `POST /api/leads` — every website form posts here |
+| `src/app/media/[file]` | Serves uploaded product photos from `UPLOAD_DIR` |
+| `src/lib/content.ts` | Cached reads for public pages (`"use cache"` + the `content` tag) |
+| `src/lib/leads.ts` | Saves a lead and sends the team alert + customer confirmation emails |
+| `src/proxy.ts` | Sends signed-out visitors of `/admin/*` to the login page |
+| `prisma/schema.prisma` | Database tables · `prisma/seed.ts` sample content |
 
-## Learn More
+## How it works
 
-To learn more about Next.js, take a look at the following resources:
+**A visitor asks for a quote.** Product page → *Add to quote basket* (kept in the browser) → `/quote` → the form
+posts to `/api/leads` → validated (Zod, honeypot, rate limit) → saved as a `Lead` with a reference like
+`OKQ-26BX577T` → after the response, an email goes to `LEADS_NOTIFY_EMAIL` and a confirmation to the visitor.
+Demo bookings (`OKD-…`), contact messages (`OKC-…`) and partner enquiries (`OKP-…`) follow the same path.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**The team works the lead.** Admin → Leads: filter, search, export CSV, open a lead, set its stage
+(new → contacted → quoted → won/lost), assign it to a salesperson and add notes.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**An editor changes content.** Admin → Products/Software/… → Save. The save calls `updateTag("content")`, so the
+public pages (prerendered and cached for an hour) refresh immediately.
 
-## Deploy on Vercel
+**Roles.** Admin: everything, including users and deleting leads. Editor: website content. Sales: leads.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Production (VPS)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm ci
+npm run db:migrate
+npm run build
+pm2 start ecosystem.config.cjs     # serves on port 3300; put Nginx in front for the domain + HTTPS
+```
+
+Set in `.env` on the server: `DATABASE_URL`, a fresh `AUTH_SECRET`, `SITE_URL=https://your-domain`,
+`LEADS_NOTIFY_EMAIL`, the `SMTP_*` values, and `UPLOAD_DIR` (an absolute folder outside the app, e.g.
+`/var/lib/onekampus/uploads`, and include it in backups). Run `npm run db:seed` once to create the first admin,
+then change the sample prices, contact details and testimonials in the admin panel.
+
+## Branches
+
+Each phase was built on its own branch and merged into `main`:
+`01-setup-database` → `02-public-site` → `03-leads-and-forms` → `04-admin-panel` → `05-seo-and-launch`.

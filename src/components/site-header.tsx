@@ -53,9 +53,9 @@ export function SiteHeader() {
               </span>
             )}
           </Link>
-          <Link href="/book-demo" className={clsx(buttonClass("primary", "sm"), "hidden sm:inline-flex")}>
-            Book a demo
-          </Link>
+          <span className="hidden sm:block">
+            <Link href="/book-demo" className={buttonClass("primary", "sm")}>Book a demo</Link>
+          </span>
           <button
             type="button"
             className="inline-grid size-10 place-items-center rounded-full text-ink-800 hover:bg-ink-50 lg:hidden"

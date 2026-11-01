@@ -7,6 +7,8 @@ import { ProductCard, SolutionCard } from "@/components/cards";
 import { CtaBand } from "@/components/cta-band";
 import { Icon, SolutionIcon } from "@/components/icon";
 import { ButtonLink, SectionHeading } from "@/components/ui";
+import { JsonLd } from "@/components/json-ld";
+import { siteUrl } from "@/lib/site";
 
 export default async function HomePage() {
   const [settings, solutions, categories, featured, services, testimonials] = await Promise.all([
@@ -15,6 +17,18 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: settings.companyName,
+          url: siteUrl,
+          logo: `${siteUrl}/brand/onekampus-icon.svg`,
+          email: settings.email,
+          telephone: settings.phone,
+          sameAs: settings.social.map((s) => s.url),
+        }}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[36rem] bg-gradient-to-b from-coral-50 via-paper-50 to-paper-50" />
