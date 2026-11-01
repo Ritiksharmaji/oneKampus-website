@@ -3,6 +3,7 @@ import { HeartHandshake, Layers, ShieldCheck, Sparkles } from "lucide-react";
 import { getSettings } from "@/lib/content";
 import { CtaBand } from "@/components/cta-band";
 import { PageHeader, SectionHeading } from "@/components/ui";
+import { reveal } from "@/lib/motion";
 
 export const metadata: Metadata = {
   title: "About oneKampus",
@@ -43,8 +44,8 @@ export default async function AboutPage() {
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          {values.map((v) => (
-            <div key={v.title} className="card p-6">
+          {values.map((v, i) => (
+            <div key={v.title} {...reveal(i)} className="card p-6">
               <v.icon className="size-6 text-coral-500" />
               <h3 className="mt-4 font-semibold">{v.title}</h3>
               <p className="mt-2 text-sm text-ink-600">{v.text}</p>

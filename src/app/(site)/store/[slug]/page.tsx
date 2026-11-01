@@ -8,6 +8,7 @@ import { AddToQuote } from "@/components/add-to-quote";
 import { JsonLd } from "@/components/json-ld";
 import { Badge, SectionHeading } from "@/components/ui";
 import { formatINR, siteUrl, startingPrice } from "@/lib/site";
+import { reveal } from "@/lib/motion";
 
 export async function generateStaticParams() {
   const products = await getProducts();
@@ -62,11 +63,11 @@ export default async function ProductPage({ params }: PageProps<"/store/[slug]">
       </div>
 
       <section className="container-x mt-6 grid gap-10 lg:grid-cols-2">
-        <div className="card overflow-hidden lg:sticky lg:top-24 lg:self-start">
+        <div className="card enter overflow-hidden lg:sticky lg:top-24 lg:self-start">
           <ProductVisual product={product} />
         </div>
 
-        <div>
+        <div className="enter" style={{ "--d": "120ms" } as React.CSSProperties}>
           <div className="flex flex-wrap gap-2">
             <Badge tone="ink">{product.category.name}</Badge>
             {product.customizable && <Badge tone="mint">Custom print available</Badge>}
@@ -140,7 +141,9 @@ export default async function ProductPage({ params }: PageProps<"/store/[slug]">
         <section className="container-x mt-20">
           <SectionHeading title={`More ${product.category.name.toLowerCase()}`} />
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((p) => <ProductCard key={p.id} product={p} />)}
+            {related.map((p, i) => (
+              <div key={p.id} {...reveal(i)}><ProductCard product={p} /></div>
+            ))}
           </div>
         </section>
       )}

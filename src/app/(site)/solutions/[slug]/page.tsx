@@ -8,6 +8,7 @@ import { SolutionIcon } from "@/components/icon";
 import { ButtonLink, SectionHeading } from "@/components/ui";
 import { JsonLd } from "@/components/json-ld";
 import { siteUrl } from "@/lib/site";
+import { reveal } from "@/lib/motion";
 
 export async function generateStaticParams() {
   const solutions = await getSolutions();
@@ -60,18 +61,18 @@ export default async function SolutionPage({ params }: PageProps<"/solutions/[sl
       <section className="border-b border-ink-100 bg-gradient-to-b from-coral-50/70 to-paper-50">
         <div className="container-x grid gap-10 py-14 sm:py-20 lg:grid-cols-[1.4fr_1fr] lg:items-center">
           <div>
-            <SolutionIcon icon={solution.icon} size={64} />
-            <h1 className="mt-6 text-4xl font-semibold sm:text-5xl">{solution.name}</h1>
-            <p className="mt-3 text-xl text-ink-700">{solution.tagline}</p>
-            <p className="mt-5 max-w-2xl text-lg text-ink-600">{solution.summary}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="enter"><SolutionIcon icon={solution.icon} size={64} /></div>
+            <h1 className="enter mt-6 text-4xl font-semibold sm:text-5xl" style={{ "--d": "80ms" } as React.CSSProperties}>{solution.name}</h1>
+            <p className="enter mt-3 text-xl text-ink-700" style={{ "--d": "140ms" } as React.CSSProperties}>{solution.tagline}</p>
+            <p className="enter mt-5 max-w-2xl text-lg text-ink-600" style={{ "--d": "200ms" } as React.CSSProperties}>{solution.summary}</p>
+            <div className="enter mt-8 flex flex-wrap gap-3" style={{ "--d": "260ms" } as React.CSSProperties}>
               <ButtonLink href={`/book-demo?solution=${solution.slug}`} size="lg">Book a demo</ButtonLink>
               {solution.appUrl && (
                 <ButtonLink href={solution.appUrl} size="lg" variant="outline">Sign in</ButtonLink>
               )}
             </div>
           </div>
-          <div className="card p-6">
+          <div className="card enter p-6" style={{ "--d": "200ms" } as React.CSSProperties}>
             <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-ink-500">
               <Users className="size-4" /> Built for
             </h2>
@@ -95,8 +96,8 @@ export default async function SolutionPage({ params }: PageProps<"/solutions/[sl
       <section className="container-x mt-20">
         <SectionHeading eyebrow="Features" title={`What you get with ${solution.name.replace("oneKampus ", "")}`} />
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {solution.features.map((f) => (
-            <div key={f.title} className="card p-6">
+          {solution.features.map((f, i) => (
+            <div key={f.title} {...reveal(i)} className="card p-6 transition duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-ink-950/5">
               <span className="block h-1 w-10 rounded-full bg-coral-500" />
               <h3 className="mt-4 text-lg font-semibold">{f.title}</h3>
               <p className="mt-2 text-sm text-ink-600">{f.description}</p>
@@ -108,7 +109,7 @@ export default async function SolutionPage({ params }: PageProps<"/solutions/[sl
       {solution.faqs.length > 0 && (
         <section className="container-x mt-20 max-w-3xl">
           <SectionHeading eyebrow="FAQ" title="Questions institutes ask" />
-          <div className="mt-8 divide-y divide-ink-100 rounded-[var(--radius-card)] border border-ink-100 bg-paper-0">
+          <div {...reveal()} className="mt-8 divide-y divide-ink-100 rounded-[var(--radius-card)] border border-ink-100 bg-paper-0">
             {solution.faqs.map((f) => (
               <details key={f.q} className="group px-6 py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink-900">
@@ -126,7 +127,9 @@ export default async function SolutionPage({ params }: PageProps<"/solutions/[sl
         <section className="container-x mt-20">
           <SectionHeading eyebrow="Works together" title="Pairs well with" />
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {others.map((s) => <SolutionCard key={s.id} solution={s} />)}
+            {others.map((s, i) => (
+              <div key={s.id} {...reveal(i)}><SolutionCard solution={s} /></div>
+            ))}
           </div>
         </section>
       )}

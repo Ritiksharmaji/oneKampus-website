@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import clsx from "clsx";
 import { ProductCard } from "@/components/cards";
 import type { StoreProduct } from "@/lib/content";
+import { reveal } from "@/lib/motion";
 
 type Category = { slug: string; name: string };
 
@@ -49,7 +50,9 @@ export function StoreBrowser({
 
       {shown.length > 0 ? (
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {shown.map((p) => <ProductCard key={p.id} product={p} />)}
+          {shown.map((p, i) => (
+            <div key={p.id} {...reveal(i % 4)}><ProductCard product={p} /></div>
+          ))}
         </div>
       ) : (
         <div className="card mt-8 p-10 text-center">

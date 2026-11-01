@@ -1,4 +1,5 @@
 import { ButtonLink } from "@/components/ui";
+import { reveal } from "@/lib/motion";
 
 export function CtaBand({
   title = "Let's set up your campus",
@@ -6,8 +7,8 @@ export function CtaBand({
 }: { title?: string; text?: string }) {
   return (
     <section className="container-x mt-24">
-      <div className="relative overflow-hidden rounded-[2rem] bg-ink-950 px-6 py-14 text-center sm:px-12">
-        <div className="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full bg-coral-500/25 blur-3xl" />
+      <div {...reveal(0, "scale")} className="relative overflow-hidden rounded-[2rem] bg-ink-950 px-6 py-14 text-center sm:px-12">
+        <div className="drift pointer-events-none absolute -right-20 -top-20 size-72 rounded-full bg-coral-500/25 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-16 size-72 rounded-full bg-coral-500/15 blur-3xl" />
         <h2 className="relative text-3xl font-semibold text-white sm:text-4xl">{title}</h2>
         <p className="relative mx-auto mt-4 max-w-xl text-ink-300">{text}</p>

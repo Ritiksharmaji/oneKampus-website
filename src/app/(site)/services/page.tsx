@@ -4,6 +4,7 @@ import { getServices } from "@/lib/content";
 import { CtaBand } from "@/components/cta-band";
 import { Icon } from "@/components/icon";
 import { ButtonLink, PageHeader } from "@/components/ui";
+import { reveal } from "@/lib/motion";
 
 export const metadata: Metadata = {
   title: "Services for institutes",
@@ -25,6 +26,7 @@ export default async function ServicesPage() {
           <article
             key={s.id}
             id={s.slug}
+            {...reveal(i)}
             className="card grid gap-6 p-6 sm:p-8 md:grid-cols-[auto_1fr_1fr] md:items-start"
           >
             <span className="grid size-14 place-items-center rounded-2xl bg-coral-50 text-coral-600">

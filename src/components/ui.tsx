@@ -1,5 +1,6 @@
 import Link from "next/link";
 import clsx from "clsx";
+import { reveal } from "@/lib/motion";
 
 type Variant = "primary" | "dark" | "outline" | "ghost";
 
@@ -12,7 +13,7 @@ const variants: Record<Variant, string> = {
 
 export function buttonClass(variant: Variant = "primary", size: "md" | "lg" | "sm" = "md") {
   return clsx(
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50",
     size === "lg" && "px-6 py-3 text-base",
     size === "md" && "px-5 py-2.5 text-sm",
     size === "sm" && "px-3.5 py-1.5 text-sm",
@@ -34,7 +35,7 @@ export function SectionHeading({
   eyebrow, title, intro, center,
 }: { eyebrow?: string; title: string; intro?: string; center?: boolean }) {
   return (
-    <div className={clsx("max-w-2xl", center && "mx-auto text-center")}>
+    <div {...reveal()} className={clsx("max-w-2xl", center && "mx-auto text-center")}>
       {eyebrow && <p className="eyebrow">{eyebrow}</p>}
       <h2 className="mt-2 text-3xl font-semibold sm:text-4xl">{title}</h2>
       {intro && <p className="mt-4 text-lg text-ink-600">{intro}</p>}
@@ -48,10 +49,10 @@ export function PageHeader({ eyebrow, title, intro, children }: {
   return (
     <section className="border-b border-ink-100 bg-gradient-to-b from-coral-50/70 to-paper-50">
       <div className="container-x py-14 sm:py-20">
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        <h1 className="mt-3 max-w-3xl text-4xl font-semibold sm:text-5xl">{title}</h1>
-        {intro && <p className="mt-5 max-w-2xl text-lg text-ink-600">{intro}</p>}
-        {children}
+        {eyebrow && <p className="eyebrow enter">{eyebrow}</p>}
+        <h1 className="enter mt-3 max-w-3xl text-4xl font-semibold sm:text-5xl" style={{ "--d": "80ms" } as React.CSSProperties}>{title}</h1>
+        {intro && <p className="enter mt-5 max-w-2xl text-lg text-ink-600" style={{ "--d": "160ms" } as React.CSSProperties}>{intro}</p>}
+        {children && <div className="enter" style={{ "--d": "240ms" } as React.CSSProperties}>{children}</div>}
       </div>
     </section>
   );

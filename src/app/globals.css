@@ -40,29 +40,89 @@
   --radius-card: 1.25rem;
 }
 
-html {
-  scroll-padding-top: 5rem;
+/* Base styles live in the base layer so utilities like text-white can override them. */
+@layer base {
+  html {
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background: var(--color-paper-50);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--color-ink-950);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-coral-500);
+    outline-offset: 2px;
+  }
 }
 
-body {
-  background: var(--color-paper-50);
-  color: var(--color-ink-900);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
+/* ---------- Motion ----------
+   .enter        — plays once on page load (hero), staggered with --d
+   [data-reveal] — fades up as it scrolls into view (CSS scroll-driven, no JavaScript),
+                   staggered with --i; browsers without support simply show the content
+   Everything is switched off for people who prefer reduced motion. */
+
+@keyframes enter-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--rot, 0deg)); }
+}
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 20px) scale(1.08); }
 }
 
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
-  color: var(--color-ink-950);
+.enter {
+  animation: enter-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+.float {
+  animation: float 7s ease-in-out infinite;
+  animation-delay: var(--d, 0ms);
+}
+.drift {
+  animation: drift 16s ease-in-out infinite;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-coral-500);
-  outline-offset: 2px;
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes reveal-scale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: none; }
+}
+
+@supports (animation-timeline: view()) {
+  [data-reveal] {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry calc(var(--i, 0) * 4%) entry calc(40% + var(--i, 0) * 4%);
+  }
+  [data-reveal="scale"] {
+    animation-name: reveal-scale;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter, .float, .drift { animation: none; }
+  [data-reveal] { animation: none !important; }
+  html { scroll-behavior: auto; }
 }
 
 @layer components {
