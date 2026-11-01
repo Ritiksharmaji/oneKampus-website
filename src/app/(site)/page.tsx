@@ -10,7 +10,7 @@ import { Icon, SolutionIcon } from "@/components/icon";
 import { ButtonLink, SectionHeading } from "@/components/ui";
 import { JsonLd } from "@/components/json-ld";
 import { reveal } from "@/lib/motion";
-import { siteUrl } from "@/lib/site";
+import { imageSrc, siteUrl } from "@/lib/site";
 
 const enter = (i: number) => ({ className: "enter", style: { "--d": `${i * 90}ms` } as React.CSSProperties });
 
@@ -269,7 +269,7 @@ function HeroCollage({
             {photos.map((p) => (
               <Link key={p.id} href={`/store/${p.slug}`} className="group overflow-hidden rounded-xl">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.image!} alt={p.name} className="aspect-square w-full object-cover transition duration-500 group-hover:scale-110" />
+                <img src={imageSrc(p.image!, 300)} alt={p.name} className="aspect-square w-full object-cover transition duration-500 group-hover:scale-110" />
               </Link>
             ))}
           </div>

@@ -2,6 +2,7 @@ import { after } from "next/server";
 import { leadSchema } from "@/lib/lead-schema";
 import { createLead, notifyLead } from "@/lib/leads";
 import { rateLimit } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
@@ -22,6 +23,11 @@ export async function POST(request: Request) {
 
   // Honeypot filled in → pretend success so bots don't retry.
   if (parsed.data.website) return Response.json({ ref: "OK" });
+
+  // Checked only after the fields are valid, so a typo doesn't use up the visitor's verification.
+  if (!(await verifyTurnstile(body?.["cf-turnstile-response"], ip))) {
+    return Response.json({ error: "Please complete the verification and send the form again.", retryVerification: true }, { status: 400 });
+  }
 
   const created = await createLead(parsed.data);
   after(() => notifyLead(created));

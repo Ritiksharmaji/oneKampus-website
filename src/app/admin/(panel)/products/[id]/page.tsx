@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { imageSrc } from "@/lib/site";
 import { can, requireUser } from "@/lib/auth";
 import { toLines } from "@/lib/form-data";
 import { ActionForm, ConfirmSubmit, Submit } from "@/components/admin/action-form";
@@ -44,7 +45,7 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
         <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
           {p?.image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={p.image} alt="" className="size-28 rounded-xl border border-ink-100 object-cover" />
+            <img src={imageSrc(p.image, 300)} alt="" className="size-28 rounded-xl border border-ink-100 object-cover" />
           ) : (
             <div className="grid size-28 place-items-center rounded-xl bg-paper-100 text-xs text-ink-500">No photo</div>
           )}

@@ -20,7 +20,7 @@ const items: { href: string; label: string; icon: typeof Inbox; roles: Role[] }[
   { href: "/admin/users", label: "Users", icon: Users, roles: ["ADMIN"] },
 ];
 
-export function AdminNav({ role }: { role: Role }) {
+export function AdminNav({ role, siteHref }: { role: Role; siteHref: string }) {
   const pathname = usePathname();
   return (
     <nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible lg:pb-0" aria-label="Admin">
@@ -39,9 +39,9 @@ export function AdminNav({ role }: { role: Role }) {
           </Link>
         );
       })}
-      <Link href="/" target="_blank" className="flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink-500 hover:bg-ink-50">
+      <a href={siteHref} target="_blank" rel="noreferrer" className="flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink-500 hover:bg-ink-50">
         <ExternalLink className="size-4" /> View website
-      </Link>
+      </a>
     </nav>
   );
 }
