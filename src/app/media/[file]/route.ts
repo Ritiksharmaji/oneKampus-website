@@ -10,7 +10,7 @@ export async function GET(_: Request, { params }: RouteContext<"/media/[file]">)
   if (!/^[a-f0-9]{24}\.(jpg|png|webp)$/.test(file)) return new Response("Not found", { status: 404 });
 
   try {
-    const data = await readFile(path.join(UPLOAD_DIR, file));
+    const data = await readFile(path.join(/*turbopackIgnore: true*/ UPLOAD_DIR, file));
     return new Response(data, {
       headers: {
         "Content-Type": CONTENT_TYPES[file.split(".").pop()!],

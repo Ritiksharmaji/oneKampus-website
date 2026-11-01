@@ -4,7 +4,7 @@ module.exports = {
     {
       name: "onekampus-website",
       script: "node_modules/next/dist/bin/next",
-      args: "start -p 3300",
+      args: `start -p ${process.env.PORT || 3300}`,
       cwd: __dirname,
       env: { NODE_ENV: "production" },
       max_memory_restart: "600M",
