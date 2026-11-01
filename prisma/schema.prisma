@@ -1,0 +1,174 @@
+// oneKampus website — catalogue of everything oneKampus offers, plus the leads it brings in.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN // everything, including users
+  EDITOR // website content
+  SALES // leads only
+}
+
+enum LeadType {
+  QUOTE // store quote basket
+  DEMO // software demo booking
+  CONTACT // general contact form
+  PARTNER // distributor / reseller
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  WON
+  LOST
+  CLOSED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(EDITOR)
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  leads        Lead[]     @relation("AssignedLeads")
+  notes        LeadNote[]
+}
+
+/// Software products: Manage, Learn, Assess, Hire, ...
+model Solution {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  name       String
+  tagline    String
+  summary    String
+  icon       String // file in /public/brand or a lucide icon name
+  /// [{ title, description }]
+  features   Json     @default("[]")
+  /// short bullet points shown on cards
+  highlights String[]
+  audiences  String[]
+  /// [{ q, a }]
+  faqs       Json     @default("[]")
+  appUrl     String?
+  order      Int      @default(0)
+  published  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  leads      Lead[]
+}
+
+/// Kampus Store categories: notebooks, uniforms, stationery, ...
+model ProductCategory {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String
+  icon        String // lucide icon name
+  order       Int       @default(0)
+  products    Product[]
+}
+
+model Product {
+  id                String          @id @default(cuid())
+  slug              String          @unique
+  name              String
+  categoryId        String
+  category          ProductCategory @relation(fields: [categoryId], references: [id])
+  summary           String
+  description       String
+  image             String?
+  /// [{ label, value }]
+  specs             Json            @default("[]")
+  /// [{ name, values: string[] }] — e.g. Size, Pages, Colour
+  options           Json            @default("[]")
+  customizable      Boolean         @default(false)
+  customizationNote String?
+  moq               Int             @default(1)
+  unit              String          @default("piece")
+  /// [{ minQty, price }] — indicative price per unit, rupees
+  priceTiers        Json            @default("[]")
+  featured          Boolean         @default(false)
+  published         Boolean         @default(true)
+  order             Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([categoryId])
+}
+
+/// Services: printing, setup, training, infrastructure, ...
+model Service {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  summary   String
+  icon      String
+  points    String[]
+  order     Int      @default(0)
+  published Boolean  @default(true)
+}
+
+model Testimonial {
+  id          String  @id @default(cuid())
+  name        String
+  role        String
+  institution String
+  quote       String
+  order       Int     @default(0)
+  published   Boolean @default(false)
+}
+
+model Lead {
+  id            String     @id @default(cuid())
+  ref           String     @unique
+  type          LeadType
+  status        LeadStatus @default(NEW)
+  name          String
+  institution   String?
+  email         String
+  phone         String
+  city          String?
+  message       String?
+  solutionId    String?
+  solution      Solution?  @relation(fields: [solutionId], references: [id], onDelete: SetNull)
+  preferredDate DateTime?
+  /// QUOTE: [{ productId, slug, name, qty, unit, options, customization }]
+  items         Json?
+  /// utm_source, utm_medium, utm_campaign, page
+  source        Json?
+  assignedToId  String?
+  assignedTo    User?      @relation("AssignedLeads", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  notes         LeadNote[]
+
+  @@index([type, status])
+  @@index([createdAt])
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+}
+
+/// Key/value site settings: contact details, hero text, stats.
+model Setting {
+  key   String @id
+  value Json
+}
