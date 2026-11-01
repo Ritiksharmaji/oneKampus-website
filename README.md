@@ -60,16 +60,16 @@ public pages (prerendered and cached for an hour) refresh immediately.
 
 **Roles.** Admin: everything, including users and deleting leads. Editor: website content. Sales: leads.
 
-## Production (VPS)
+## Production
 
-Everything for the server is in [`deploy/`](deploy/README.md): a one-time `server-setup.sh` (Node, PostgreSQL,
-Nginx, HTTPS, firewall, backups), a `deploy.sh` that builds each release next to the live one and switches over
-only when it answers a health check, and a GitHub Actions workflow that deploys whenever `main` changes.
-Step-by-step guide (Hostinger VPS, GoDaddy DNS, GitHub secrets): [deploy/README.md](deploy/README.md).
+Live at **https://www.onekampus.com**, admin at **https://admin.onekampus.com** — AWS Lambda + CloudFront
+(Mumbai) with Neon PostgreSQL, Cloudinary photos and Cloudflare Turnstile, deployed with SST.
+Everything about hosting — architecture, setup from zero, secrets, domain, GitHub Actions, day-to-day
+commands and troubleshooting — is in **[DEPLOYMENT.md](DEPLOYMENT.md)**.
 
 ## Branches
 
 `main` is what runs on the server. Work happens on numbered branches made from `development`, which are merged
 into `development`, and then `development` is merged into `main` to release (that deploys automatically).
 Done so far: `01-setup-database`, `02-public-site`, `03-leads-and-forms`, `04-admin-panel`, `05-seo-and-launch`,
-`06-photos-and-motion`, `07-deployment`.
+`06-photos-and-motion`, `07-deployment`, `08-aws-serverless`, `09-deployment-docs`.
