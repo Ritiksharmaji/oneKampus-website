@@ -337,8 +337,8 @@ async function main() {
 
   for (const [i, { category, ...p }] of products.entries()) {
     const data = { ...p, categoryId: categoryIds[category], order: i };
-    // Placeholder photo from public/store (see CREDITS.md); never replaces a photo uploaded in admin.
-    const image = `/store/${p.slug}.jpg`;
+    // Placeholder photo from public/images/products (see CREDITS.md); never replaces a photo uploaded in admin.
+    const image = `/images/products/${p.slug}.jpg`;
     await db.product.upsert({ where: { slug: p.slug }, update: data, create: { ...data, image } });
     await db.product.updateMany({ where: { slug: p.slug, image: null }, data: { image } });
   }

@@ -5,7 +5,7 @@ import { ContactFields, Field, FormError, SubmitButton, SuccessPanel, TextArea, 
 
 export function DemoForm({ solutions }: { solutions: { slug: string; name: string }[] }) {
   const preselected = useSearchParams().get("solution") ?? "";
-  const { status, fieldErrors, submit } = useLeadForm("DEMO");
+  const { status, fieldErrors, submit, attempt } = useLeadForm("DEMO");
 
   if (status.kind === "done") return <SuccessPanel title="Demo request received" refNo={status.ref} />;
 
@@ -29,7 +29,7 @@ export function DemoForm({ solutions }: { solutions: { slug: string; name: strin
       <Field name="city" label="City" autoComplete="address-level2" error={fieldErrors.city} />
       <TextArea name="message" label="What would you like to see?" rows={3} placeholder="Number of students, branches, what you use today…" error={fieldErrors.message} />
       <FormError message={status.kind === "error" ? status.message : undefined} />
-      <SubmitButton sending={status.kind === "sending"}>Request my demo</SubmitButton>
+      <SubmitButton sending={status.kind === "sending"} attempt={attempt}>Request my demo</SubmitButton>
     </form>
   );
 }
