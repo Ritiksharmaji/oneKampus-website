@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { Logo } from "@/components/logo";
 import { logout } from "@/app/admin/actions/auth";
+import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = { title: { default: "Admin", template: "%s · Admin · oneKampus" }, robots: { index: false } };
 
@@ -21,7 +22,7 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-paper-100 lg:grid lg:grid-cols-[15rem_1fr]">
       <aside className="border-b border-ink-100 bg-paper-0 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
         <div className="flex h-16 items-center px-5"><Logo /></div>
-        <AdminNav role={user.role} />
+        <AdminNav role={user.role} siteHref={process.env.ADMIN_HOST ? siteUrl : "/"} />
         <div className="hidden border-t border-ink-100 p-4 lg:absolute lg:inset-x-0 lg:bottom-0 lg:block">
           <p className="truncate text-sm font-semibold text-ink-900">{user.name}</p>
           <p className="truncate text-xs text-ink-500">{user.email} · {user.role.toLowerCase()}</p>

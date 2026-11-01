@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import type { LeadType } from "@prisma/client";
 import { db } from "@/lib/db";
 import { emailLayout, escapeHtml, sendMail } from "@/lib/mail";
-import { siteUrl } from "@/lib/site";
+import { adminUrl } from "@/lib/site";
 import type { LeadInput } from "@/lib/lead-schema";
 import type { QuoteItem } from "@/lib/types";
 
@@ -103,7 +103,7 @@ export async function notifyLead({ lead, solutionName }: CreatedLead) {
         subject: `New ${label.toLowerCase()} ${lead.ref} — ${lead.institution ?? lead.name}`,
         html: emailLayout(
           `New ${label.toLowerCase()}`,
-          `${detailTable}${itemsTable}<p style="margin-top:24px"><a href="${siteUrl}/admin/leads/${lead.id}" style="background:#FF6B57;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none;font-weight:bold">Open in admin</a></p>`,
+          `${detailTable}${itemsTable}<p style="margin-top:24px"><a href="${adminUrl}/admin/leads/${lead.id}" style="background:#FF6B57;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none;font-weight:bold">Open in admin</a></p>`,
         ),
       }),
     );

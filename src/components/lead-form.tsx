@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import clsx from "clsx";
 import { buttonClass } from "@/components/ui";
+import { Turnstile } from "@/components/turnstile";
 
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "error"; message: string } | { kind: "done"; ref: string };
 
@@ -12,6 +13,8 @@ type Status = { kind: "idle" } | { kind: "sending" } | { kind: "error"; message:
 export function useLeadForm(type: "QUOTE" | "DEMO" | "CONTACT" | "PARTNER") {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  // Bumped after a failed send so the verification widget gives a fresh token.
+  const [attempt, setAttempt] = useState(0);
 
   async function submit(form: HTMLFormElement, extra: Record<string, unknown> = {}) {
     const values = Object.fromEntries(
@@ -34,6 +37,7 @@ export function useLeadForm(type: "QUOTE" | "DEMO" | "CONTACT" | "PARTNER") {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
+        if (data.retryVerification) setAttempt((n) => n + 1);
         setFieldErrors(data.fieldErrors ?? {});
         setStatus({ kind: "error", message: data.error ?? "Something went wrong. Please try again." });
         return null;
@@ -47,7 +51,7 @@ export function useLeadForm(type: "QUOTE" | "DEMO" | "CONTACT" | "PARTNER") {
     }
   }
 
-  return { status, fieldErrors, submit };
+  return { status, fieldErrors, submit, attempt };
 }
 
 export function Field({
@@ -118,7 +122,17 @@ export function ContactFields({ errors, institutionRequired }: { errors: Record<
   );
 }
 
-export function SubmitButton({ sending, children }: { sending: boolean; children: React.ReactNode }) {
+/** Verification widget + submit button; `attempt` comes from useLeadForm. */
+export function SubmitButton({ sending, children, attempt = 0 }: { sending: boolean; children: React.ReactNode; attempt?: number }) {
+  return (
+    <>
+      <Turnstile key={attempt} />
+      <SendButton sending={sending}>{children}</SendButton>
+    </>
+  );
+}
+
+function SendButton({ sending, children }: { sending: boolean; children: React.ReactNode }) {
   return (
     <button type="submit" disabled={sending} className={clsx(buttonClass("primary", "lg"), "w-full sm:w-auto")}>
       {sending && <Loader2 className="size-4 animate-spin" />}

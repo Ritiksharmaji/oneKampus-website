@@ -13,7 +13,7 @@ const topics = [
 
 export function ContactForm() {
   const topic = useSearchParams().get("topic") ?? "software";
-  const { status, fieldErrors, submit } = useLeadForm("CONTACT");
+  const { status, fieldErrors, submit, attempt } = useLeadForm("CONTACT");
 
   if (status.kind === "done") return <SuccessPanel title="Message sent" refNo={status.ref} />;
 
@@ -40,7 +40,7 @@ export function ContactForm() {
       </div>
       <TextArea name="message" label="Message" required rows={5} error={fieldErrors.message} />
       <FormError message={status.kind === "error" ? status.message : undefined} />
-      <SubmitButton sending={status.kind === "sending"}>Send message</SubmitButton>
+      <SubmitButton sending={status.kind === "sending"} attempt={attempt}>Send message</SubmitButton>
     </form>
   );
 }

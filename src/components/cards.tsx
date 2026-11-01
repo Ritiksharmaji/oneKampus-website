@@ -3,7 +3,7 @@ import { ArrowRight, Check } from "lucide-react";
 import type { Solution } from "@prisma/client";
 import { Icon, SolutionIcon } from "@/components/icon";
 import { Badge } from "@/components/ui";
-import { formatINR, startingPrice } from "@/lib/site";
+import { formatINR, imageSrc, startingPrice } from "@/lib/site";
 import type { StoreProduct } from "@/lib/content";
 
 export function SolutionCard({ solution }: { solution: Solution }) {
@@ -37,7 +37,7 @@ const tileTones = ["bg-coral-50 text-coral-600", "bg-mint-100 text-mint-700", "b
 export function ProductVisual({ product, className = "" }: { product: StoreProduct; className?: string }) {
   if (product.image) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={product.image} alt={product.name} loading="lazy" className={`aspect-[4/3] w-full object-cover ${className}`} />;
+    return <img src={imageSrc(product.image, 900)} alt={product.name} loading="lazy" className={`aspect-[4/3] w-full object-cover ${className}`} />;
   }
   const tone = tileTones[product.category.order % tileTones.length];
   return (

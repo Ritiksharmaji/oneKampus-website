@@ -8,7 +8,7 @@ import { buttonClass } from "@/components/ui";
 
 export function QuoteView() {
   const { items, ready, update, remove, clear } = useQuoteBasket();
-  const { status, fieldErrors, submit } = useLeadForm("QUOTE");
+  const { status, fieldErrors, submit, attempt } = useLeadForm("QUOTE");
 
   if (status.kind === "done") {
     return <div className="mx-auto max-w-2xl"><SuccessPanel title="Quote request sent" refNo={status.ref} /></div>;
@@ -79,7 +79,7 @@ export function QuoteView() {
         <Field name="city" label="Delivery city" autoComplete="address-level2" error={fieldErrors.city} />
         <TextArea name="message" label="Anything else?" rows={3} placeholder="Delivery date, sample request, design files…" error={fieldErrors.message} />
         <FormError message={status.kind === "error" ? (fieldErrors.items ?? status.message) : undefined} />
-        <SubmitButton sending={status.kind === "sending"}>Send quote request</SubmitButton>
+        <SubmitButton sending={status.kind === "sending"} attempt={attempt}>Send quote request</SubmitButton>
         <p className="text-xs text-ink-500">
           By sending this request you agree to our <Link href="/privacy" className="underline">privacy policy</Link>.
         </p>

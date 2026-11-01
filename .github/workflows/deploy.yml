@@ -1,5 +1,6 @@
-# Checks every push and pull request; deploys to the VPS when main changes.
-# Deploying needs the repo secrets VPS_HOST, VPS_USER and VPS_SSH_KEY (printed by deploy/server-setup.sh).
+# Checks every push and pull request; deploys to AWS (Lambda + CloudFront via SST) when main changes.
+# Needs repo secrets AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and DIRECT_DATABASE_URL (Neon, for migrations), and (once the domain is live) repo
+# variables SITE_DOMAIN, ADMIN_HOST and CERT_ARN. App secrets live in AWS SSM (scripts/aws-secrets.sh).
 name: Deploy
 
 on:
@@ -28,28 +29,42 @@ jobs:
       - run: npx eslint src
 
   deploy:
-    name: Deploy to VPS
+    name: Deploy to AWS
     needs: check
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment: production
     env:
-      VPS_HOST: ${{ secrets.VPS_HOST }}
-      VPS_USER: ${{ secrets.VPS_USER }}
-      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ap-south-1
+      SITE_DOMAIN: ${{ vars.SITE_DOMAIN }}
+      ADMIN_HOST: ${{ vars.ADMIN_HOST }}
+      CERT_ARN: ${{ vars.CERT_ARN }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Skip until the server secrets are set
-        if: env.VPS_HOST == ''
-        run: echo "::notice::VPS_HOST is not set yet — skipping deploy. See deploy/README.md."
+      - name: Skip until the AWS secrets are set
+        if: env.AWS_ACCESS_KEY_ID == ''
+        run: echo "::notice::AWS_ACCESS_KEY_ID is not set yet — skipping deploy. See deploy/AWS.md."
+
+      - uses: actions/setup-node@v4
+        if: env.AWS_ACCESS_KEY_ID != ''
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        if: env.AWS_ACCESS_KEY_ID != ''
+        run: npm ci --no-audit --no-fund
+
+      - name: Update the database
+        if: env.AWS_ACCESS_KEY_ID != ''
+        env:
+          DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+          DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+        run: npx prisma migrate deploy
 
       - name: Deploy
-        if: env.VPS_HOST != ''
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          # Run the deploy script from this commit, so script changes ship with it.
-          ssh "$VPS_USER@$VPS_HOST" 'bash -s -- main' < deploy/deploy.sh
+        if: env.AWS_ACCESS_KEY_ID != ''
+        run: npx sst deploy --stage production
