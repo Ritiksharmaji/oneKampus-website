@@ -1,4 +1,6 @@
-# Putting the oneKampus website live on a VPS
+# Alternative: the oneKampus website on a single VPS
+
+> The live site runs on AWS — see [DEPLOYMENT.md](../DEPLOYMENT.md). This guide is the VPS alternative.
 
 About 30–45 minutes the first time. After that, every merge into `main` deploys by itself.
 
