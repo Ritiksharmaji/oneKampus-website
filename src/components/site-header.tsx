@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import clsx from "clsx";
 import { mainNav } from "@/lib/site";
@@ -13,13 +13,26 @@ import { Logo } from "@/components/logo";
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const { items, ready } = useQuoteBasket();
   const count = ready ? items.length : 0;
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-100/80 bg-paper-50/85 backdrop-blur">
+    <header
+      className={clsx(
+        "sticky top-0 z-40 border-b backdrop-blur transition-[background-color,box-shadow,border-color] duration-300",
+        scrolled ? "border-ink-100 bg-paper-50/90 shadow-[0_8px_30px_-12px_rgba(14,16,36,0.15)]" : "border-transparent bg-paper-50/60",
+      )}
+    >
       <div className="container-x flex h-16 items-center gap-6">
         <Link href="/" className="shrink-0" onClick={() => setOpen(false)}>
           <Logo />

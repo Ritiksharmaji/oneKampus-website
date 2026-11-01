@@ -308,8 +308,8 @@ const testimonials = [
 
 const settings = {
   companyName: "oneKampus",
-  email: "hello@onekampus.com",
-  phone: "+91 00000 00000",
+  email: "ritiksharma555598@gmail.com",
+  phone: "+91 62094 40270",
   address: "Your office address, City, State – PIN",
   hours: "Mon–Sat, 9:30 am – 6:30 pm",
   heroTitle: "Everything your institute needs. One partner.",
@@ -337,7 +337,10 @@ async function main() {
 
   for (const [i, { category, ...p }] of products.entries()) {
     const data = { ...p, categoryId: categoryIds[category], order: i };
-    await db.product.upsert({ where: { slug: p.slug }, update: data, create: data });
+    // Placeholder photo from public/store (see CREDITS.md); never replaces a photo uploaded in admin.
+    const image = `/store/${p.slug}.jpg`;
+    await db.product.upsert({ where: { slug: p.slug }, update: data, create: { ...data, image } });
+    await db.product.updateMany({ where: { slug: p.slug, image: null }, data: { image } });
   }
 
   for (const s of services) {
